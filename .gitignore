@@ -84,6 +84,9 @@ binboot
 build_boot
 testUsilok
 
+#востановть позже
+RxTxBoard_UART
+RxTxBoard_function
 
 
 

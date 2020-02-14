@@ -27,6 +27,7 @@ typedef struct
  */
 volatile static Task TaskArray[MAX_TASKS];      // очередь задач
 volatile static uint8_t arrayTail = 0;                  // "хвост" очереди
+extern FunctionBoard functionBoard;
 
 
 /******************************************************************************************

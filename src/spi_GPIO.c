@@ -62,7 +62,7 @@ void initCS(ChipSelect cs)
     else
     {
         cs.port->CRH &= (~((15) << ((cs.numPin - 8)*4)));
-        cs.port->CRL |= (3 << ((cs.numPin - 8)*4));
+        cs.port->CRH |= (3 << ((cs.numPin - 8)*4));
     }
     cs.port->BSRR |= 1 << cs.numPin;
 }

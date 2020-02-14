@@ -4,8 +4,8 @@
 #include "gpio.h"
 
 //UART1 use with interface
-#define UART1_TX                        A, 9, MODE_AF_PUSH_PULL, SPEED_50MHZ, 0		//UART1 Tx PA9
-#define UART1_RX                        A, 10, MODE_INPUT_PULL_UP, 0, 1			//UART1 Rx PA10
+#define UART2_TX                        A, 2, MODE_AF_PUSH_PULL, SPEED_50MHZ, 0		//UART2 Tx PA2
+#define UART2_RX                        A, 3 , MODE_INPUT_PULL_UP, 0, 1			//UART2 Rx PA3
 #define EVENT                           B, 1, MODE_OUTPUT_PUSH_PULL, SPEED_50MHZ, 0     //event for interface with uart PB1
 #define UART_TX_RX                      A, 12, MODE_AF_PUSH_PULL, SPEED_50MHZ, 0        //CTS uart PA12
 

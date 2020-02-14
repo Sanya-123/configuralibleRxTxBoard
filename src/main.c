@@ -20,17 +20,15 @@
 #include "i2c.h"
 #include "spi_GPIO.h"
 #include "Setting_devise.h"
-//#include "PortWake.h"
+#include "timer_PWM.h"
 
 
 void initAll();
-void taskDacTests();
-void task_diod();
 
-
-void delay(int i)
+/*inline*/ void resetMK()
 {
-     for(;i>0;i--);
+    __disable_irq();
+    NVIC_SystemReset();
 }
 
 /* ++
@@ -41,50 +39,34 @@ void delay(int i)
  * CS init
  * Interface init
  * Interface write
+ * Function write
+ * Function init
+ * Function do
+ * Function timer
+ * save
  *
  */
 
 //#define LED_TMP                     C, 9, MODE_OUTPUT_PUSH_PULL, SPEED_50MHZ, 0     //Select Rx BP 2 pin PB8
-#define LED_TMP                     A, 1, MODE_OUTPUT_PUSH_PULL, SPEED_50MHZ, 0     //Select Rx BP 2 pin PB8
+//#define LED_TMP                     A, 1, MODE_AF_PUSH_PULL, SPEED_50MHZ, 0         //Select Rx BP 2 pin PB8
 
-
-//typedef int (*pFunction)(int *a, int *b, int c);
 
 int main()
 {
+    uint32_t kk = sizeof(configBoard);
+    kk = sizeof(parametrs);
+    kk = sizeof(parametrsChange);
+    (void)kk;
     initAll();
     RTOS_Init();
-//    PIN_CONFIGURATION(LED_TMP);
-//    parametrs.initFunction.addres = 0x08007000;
-//    uint32_t addres = *((__IO uint32_t*)(parametrs.initFunction.addres + 4));
-//    masFunction[parametrs.sizeFunction].function = (pFunction)addres;
-//    strncpy(masFunction[parametrs.sizeFunction].name, parametrs.initFunction.name, MAX_SIZE_NAME);
-//    parametrs.sizeFunction++;
+    loadConfig();
+    spi_init();
+//    configureUart(SystemCoreClock, SPEED_UART);
+    int p = execUART(10);
+    p = execUART(15);
+    p = execUART(27);
+    p = execUART(16);
 
-//    int ret = masFunction[parametrs.doFunction.function].function(&functionBoard, parametrs.doFunction.arguments, parametrs.doFunction.sizeArgument);
-//    (void)ret;
-
-//    parametrs.functionTimer.function = 0;
-//    parametrs.functionTimer.taskDelay = 1000;
-//    parametrs.functionTimer.taskPeriod = 1000;
-
-//    RTOS_SetTask(masFunction[parametrs.functionTimer.function].function, parametrs.functionTimer.taskDelay,  \
-//            parametrs.functionTimer.taskPeriod, parametrs.functionTimer.arguments, \
-//            parametrs.functionTimer.sizeArgument);
-
-
-
-//    RTOS_Init();
-//    delay(13);
-
-//    RCC->APB2ENR |= RCC_APB2ENR_IOPAEN |RCC_APB2ENR_IOPBEN | RCC_APB2ENR_IOPCEN | RCC_APB2ENR_IOPDEN;
-//    PIN_CONFIGURATION(LED_TMP);
-//    PIN_ON(LED_TMP);
-//    return;
-
-
-//    delay(10000000);
-//    PIN_OFF(LED_TMP);
 
 
 
@@ -92,12 +74,12 @@ int main()
     {
         RTOS_DispatchTask();
         taskUprav();
+        IWDG_res();//TODO сломался watchdog
     }
 }
 
 void SystemClock_Config(void)
 {
-
 //    //включаю HSE
 //    RCC->CR |= RCC_CR_HSEON;
 //    while((RCC->CR & RCC_CR_HSERDY) == RESET);//жду пока станет готово
@@ -151,24 +133,10 @@ void initAll()
     RCC->APB2ENR |= RCC_APB2ENR_AFIOEN;
     AFIO->MAPR |= AFIO_MAPR_SWJ_CFG_JTAGDISABLE; // JTAG-DP Disabled and SW-DP Enabled
 
-    spi_init();
     initSetting();
+    initBoard();
+    initIWDG(TIME_OUT_IWDG);
 }
-
-void taskDacTests()
-{
-    xprintf("***123***\n");
-    PIN_TOGGLE(LED_1);
-//    PIN_TOGGLE(LED_2);
-//    PIN_TOGGLE(LED_3);
-}
-
-void task_diod()
-{
-    PIN_TOGGLE(LED_3);
-}
-
-
 
 //CRC
 /* RCC->AHBENR |= RCC_AHBENR_CRCEN;

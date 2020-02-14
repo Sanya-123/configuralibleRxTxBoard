@@ -6,12 +6,12 @@
 #include "stm32f1xx.h"
 #include "stdbool.h"
 
-typedef struct {
+typedef struct __attribute__((packed)){
     GPIO_TypeDef *port;
     uint8_t numPin;
 }ChipSelect;
 
-typedef struct {
+typedef struct __attribute__((packed)){
     //порты выходных ножек
     GPIO_TypeDef *portPin_CLK;
     GPIO_TypeDef *portPin_MOSI;

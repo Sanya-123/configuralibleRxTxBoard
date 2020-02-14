@@ -30,7 +30,8 @@ void USART2_IRQHandler(void)//TODO
     if ((USART2->SR & (USART_SR_NE | USART_SR_FE | USART_SR_PE | USART_SR_ORE)) == 0) //проверяем нет ли ошибок
     {
 //        bufferSetData(&bufferReadUART, USART2->DR);//по приходу данных записываб их в буффер
-        (void)USART2->DR;
+        uint8_t data = USART2->DR;
+        execUART(data);
     }
     else
     {
@@ -38,6 +39,21 @@ void USART2_IRQHandler(void)//TODO
         USART2->SR &= ~USART_SR_RXNE;               // ещё и сбрасываем флаг прерывания
     }
 }
+//void USART1_IRQHandler(void)//TODO
+//{
+//    if ((USART1->SR & (USART_SR_NE | USART_SR_FE | USART_SR_PE | USART_SR_ORE)) == 0) //проверяем нет ли ошибок
+//    {
+////        bufferSetData(&bufferReadUART, USART2->DR);//по приходу данных записываб их в буффер
+//        uint8_t data =  USART1->DR;
+//        data = data;
+//        (void)data;
+//    }
+//    else
+//    {
+//        (void)USART1->DR;                                 // вычитываем данные и на всякий случай
+//        USART1->SR &= ~USART_SR_RXNE;               // ещё и сбрасываем флаг прерывания
+//    }
+//}
 
 void wrireDatInterface(uint8_t data)//универсальная фкнкция для отправки данных в ней устанавливаеться интерфейс отправаки
 {
@@ -77,7 +93,7 @@ uint32_t getSizeCmd(uint8_t cmd)//получения ожидаемого раз
 {
     if((cmd == WRITE_GPIO) || (cmd == READ_GPIO))
         return 2;
-    if((cmd >= INIT_PIN) && (cmd <= INIT_SPI_CMD))
+    if((cmd >= INIT_PIN) && (cmd <= INIT_SPI))
         return 3;
     if((cmd == INIT_CS))
         return 1;
@@ -92,7 +108,7 @@ uint32_t getSizeCmd(uint8_t cmd)//получения ожидаемого раз
     if((cmd == REMOVE_INTERFAVE) || (cmd == REMOVE_SPI) || (cmd == REMOVE_CS))
         return 1;
     if((cmd == GET_SIZE_USE))
-        return 6;
+        return 5;
 
     if((cmd == WRITE_FUNCTION))
         return SIZE_USE_FLASH_4K;
@@ -101,6 +117,12 @@ uint32_t getSizeCmd(uint8_t cmd)//получения ожидаемого раз
     if((cmd == FUNCTION_TIMER))
         return 9 + MAX_ARGUMENT_SIZE + 4;
     if((cmd == FUNCTION_TIMER_STOP))
+        return 1;
+
+    if(cmd == SAVE_CONFIG)
+        return 1;
+
+    if((cmd == GET_INFO_CS) || (cmd == GET_INFO_SPI) || (cmd == GET_INFO_INTERFACE) || (cmd == GET_INFO_FUNCTION))
         return 1;
 
     if((cmd == FEE_WRITE) || (cmd == FEE_READ))//при этой команде возможно до SIZE_USE_FLASH_4K байт
@@ -122,88 +144,54 @@ uint32_t getSizeCmd(uint8_t cmd)//получения ожидаемого раз
  * @return - если команда не корректная то -1 иначе аддрес места(в структуре) где находиться этот парасетр
  */
 
+//получить смещение y в Parametrs по команде x
+#define GET_OFFSE_PARAMERT(x,y)          case x:offset = offsetof(Parametrs, y);break;
+
 int32_t getOfsetData(uint16_t cmd)
 {
     int32_t offset = -1;
 
 //    offsetof(EpromStruct, masNPT1[0]);
     switch (cmd) {
-    case INIT_PIN:
-        offset = offsetof(Parametrs, initGPIO);
-        break;
-    case WRITE_GPIO:
-        offset = offsetof(Parametrs, readWriteGPIO);
-        break;
-    case READ_GPIO:
-        offset = offsetof(Parametrs, readWriteGPIO);
-        break;
-    case INIT_SPI_CMD:
-        offset = offsetof(Parametrs, initSPI);
-        break;
-    case INIT_CS:
-        offset = offsetof(Parametrs, initCS);
-        break;
-    case INIT_INTERFACE:
-        offset = offsetof(Parametrs, initInterface);
-        break;
+        GET_OFFSE_PARAMERT(INIT_PIN, initGPIO);
+        GET_OFFSE_PARAMERT(WRITE_GPIO, readWriteGPIO);
+        GET_OFFSE_PARAMERT(READ_GPIO, readWriteGPIO);
+        GET_OFFSE_PARAMERT(INIT_SPI, initSPI);
+        GET_OFFSE_PARAMERT(INIT_CS, initCS);
+        GET_OFFSE_PARAMERT(INIT_INTERFACE, initInterface);
 
-    case WARITE_SPI:
-        offset = offsetof(Parametrs, writeSpi);
-        break;
-    case WARITE_INTERFACE:
-        offset = offsetof(Parametrs, writeInterface);
-        break;
+        GET_OFFSE_PARAMERT(WARITE_SPI, writeSpi);
+        GET_OFFSE_PARAMERT(WARITE_INTERFACE, writeInterface);
 
-    case REMOVE_CS:
-        offset = offsetof(Parametrs, removeCs);
-        break;
-    case REMOVE_SPI:
-        offset = offsetof(Parametrs, removeSpi);
-        break;
-    case REMOVE_INTERFAVE:
-        offset = offsetof(Parametrs, removeInterface);
-        break;
+        GET_OFFSE_PARAMERT(REMOVE_CS, removeCs);
+        GET_OFFSE_PARAMERT(REMOVE_SPI, removeSpi);
+        GET_OFFSE_PARAMERT(REMOVE_INTERFAVE, removeInterface);
 
-    case GET_SIZE_USE:
-        offset = offsetof(Parametrs, sizeSPI);
-        break;
+        GET_OFFSE_PARAMERT(GET_SIZE_USE, sizeCS);
 
-    case WRITE_FUNCTION:
-        offset = offsetof(Parametrs, writeFunction);
-        break;
-    case INIT_FUNCTION:
-        offset = offsetof(Parametrs, initFunction);
-        break;
-    case DO_FUNCTION:
-        offset = offsetof(Parametrs, doFunction);
-        break;
-    case REMOVE_FUNCTION:
-        offset = offsetof(Parametrs, removeFunction);
-        break;
-    case FUNCTION_TIMER:
-        offset = offsetof(Parametrs, functionTimer);
-        break;
-    case FUNCTION_TIMER_STOP:
-        offset = offsetof(Parametrs, stopTimerFunction);
-        break;
+        GET_OFFSE_PARAMERT(WRITE_FUNCTION, writeFunction);
+        GET_OFFSE_PARAMERT(INIT_FUNCTION, initFunction);
+        GET_OFFSE_PARAMERT(DO_FUNCTION, doFunction);
+        GET_OFFSE_PARAMERT(REMOVE_FUNCTION, removeFunction);
+        GET_OFFSE_PARAMERT(FUNCTION_TIMER, functionTimer);
+        GET_OFFSE_PARAMERT(FUNCTION_TIMER_STOP, stopTimerFunction);
+
+        GET_OFFSE_PARAMERT(SAVE_CONFIG, saveConfig);
+
+        GET_OFFSE_PARAMERT(GET_INFO_CS, getInfoCS);
+        GET_OFFSE_PARAMERT(GET_INFO_SPI, getInfoSPI);
+        GET_OFFSE_PARAMERT(GET_INFO_INTERFACE, getInfoInterface);
+        GET_OFFSE_PARAMERT(GET_INFO_FUNCTION, getInfoFunction);
 
     //*****board param*****
-    case BOARD_ID:
-        offset = offsetof(Parametrs, boadrID);
-        break;
+        GET_OFFSE_PARAMERT(BOARD_ID, boadrID);
     //**********
     //*****flash*****
-    case FEE_READ:
         //ффункция чтения
-    case FEE_WRITE:
-        offset = offsetof(Parametrs, flashMK);
-        break;
-    case FEE_ERASE_PAGE:
-        offset = offsetof(Parametrs, flashEarsePage);
-        break;
-    case FEE_ERASE_ALL_PAGE:
-        offset = offsetof(Parametrs, earseFlash);
-        break;
+        GET_OFFSE_PARAMERT(FEE_READ, flashMK);
+        GET_OFFSE_PARAMERT(FEE_WRITE, flashMK);
+        GET_OFFSE_PARAMERT(FEE_ERASE_PAGE, flashEarsePage);
+        GET_OFFSE_PARAMERT(FEE_ERASE_ALL_PAGE, earseFlash);
     //**********
     //*****key*****
 //******
@@ -214,75 +202,45 @@ int32_t getOfsetData(uint16_t cmd)
     return offset;
 }
 
+//выставить параметр y о каманде x на true
+#define SET_TRUE_PARAMERT(x,y)          case x:parametrsChange.y=true;break;
+
 void setChangeCMD(uint8_t cmd)
 {
     parametrsChange.theriseChange++;
     switch (cmd) {
-    case INIT_PIN:
-        parametrsChange.initGPIO = true;
-        break;
-    case WRITE_GPIO:
-        parametrsChange.readWriteGPIO = true;
-        break;
-    case INIT_SPI_CMD:
-        parametrsChange.initSPI = true;
-        break;
-    case INIT_CS:
-        parametrsChange.initCS = true;
-        break;
-    case INIT_INTERFACE:
-        parametrsChange.initInterface = true;
-        break;
+        SET_TRUE_PARAMERT(INIT_PIN, initGPIO);
+        SET_TRUE_PARAMERT(WRITE_GPIO, readWriteGPIO);
+        SET_TRUE_PARAMERT(INIT_SPI, initSPI);
+        SET_TRUE_PARAMERT(INIT_CS, initCS);
+        SET_TRUE_PARAMERT(INIT_INTERFACE, initInterface);
 
-    case WARITE_SPI:
-        parametrsChange.writeSpi = true;
-        break;
-    case WARITE_INTERFACE:
-        parametrsChange.writeInterface = true;
-        break;
+        SET_TRUE_PARAMERT(WARITE_SPI, writeSpi);
+        SET_TRUE_PARAMERT(WARITE_INTERFACE, writeInterface);
 
-    case REMOVE_CS:
-        parametrsChange.removeCs = true;
-        break;
-    case REMOVE_SPI:
-        parametrsChange.removeSpi = true;
-        break;
-    case REMOVE_INTERFAVE:
-        parametrsChange.removeInterface = true;
-        break;
+        SET_TRUE_PARAMERT(REMOVE_CS, removeCs);
+        SET_TRUE_PARAMERT(REMOVE_SPI, removeSpi);
+        SET_TRUE_PARAMERT(REMOVE_INTERFAVE, removeInterface);
 
-    case INIT_FUNCTION:
-        parametrsChange.initFunction = true;
-        break;
-    case DO_FUNCTION:
-        parametrsChange.doFunction = true;
-        break;
-    case REMOVE_FUNCTION:
-        parametrsChange.removeFunction = true;
-        break;
-    case FUNCTION_TIMER:
-        parametrsChange.functionTimer = true;
-        break;
-    case FUNCTION_TIMER_STOP:
-        parametrsChange.stopTimerFunction = true;
-        break;
+        SET_TRUE_PARAMERT(INIT_FUNCTION, initFunction);
+        SET_TRUE_PARAMERT(DO_FUNCTION, doFunction);
+        SET_TRUE_PARAMERT(REMOVE_FUNCTION, removeFunction);
+        SET_TRUE_PARAMERT(FUNCTION_TIMER, functionTimer);
+        SET_TRUE_PARAMERT(FUNCTION_TIMER_STOP, stopTimerFunction);
 
+        SET_TRUE_PARAMERT(SAVE_CONFIG, saveConfig);
+
+        SET_TRUE_PARAMERT(GET_INFO_CS, getInfoCS);
+        SET_TRUE_PARAMERT(GET_INFO_SPI, getInfoSPI);
+        SET_TRUE_PARAMERT(GET_INFO_INTERFACE, getInfoInterface);
+        SET_TRUE_PARAMERT(GET_INFO_FUNCTION, getInfoFunction);
 
     //*****board param*****
-    case BOARD_ID:
-        parametrsChange.boadrID = true;
-        break;
+        SET_TRUE_PARAMERT(BOARD_ID, boadrID);
     //**********
     //*****flash*****
-//    case FEE_WRITE:
-//        parametrsChange.flashMK = true;
-//        break;
-    case FEE_ERASE_PAGE:
-        parametrsChange.flashEarsePage = true;
-        break;
-    case FEE_ERASE_ALL_PAGE:
-        parametrsChange.earseFlash = true;
-        break;
+        SET_TRUE_PARAMERT(FEE_ERASE_PAGE, flashEarsePage);
+        SET_TRUE_PARAMERT(FEE_ERASE_ALL_PAGE, earseFlash);
     //**********
 //******
     default://если не произошло изменений в косандах которые можно е\менять
@@ -345,13 +303,14 @@ inline void spi_interupt(uint8_t data)
     case WaytDataWrite://состояния записи в память
         //OK
         iterationWaytCMD--;
+        //bcrk.xz.obt rjvfyls
         if((cmd == FEE_WRITE) || (cmd == FEE_READ))//если команды связаные со флешкой
         {
             if(iterationWaytCMD < (SIZE_USE_FLASH_4K - 2))
             {//NOTE сдесь нужно минимальное количество команд чтобы происходило максимаотно быстро
                 if((cmd == FEE_READ))//есть 1 исключение когда нужно читать из флешки
                 {
-                    spi_write(*((__IO uint8_t *)(ADDRES_PAGE_PARAMETRS_4K + parametrs.flashMK.addres + SIZE_USE_FLASH_4K - iterationWaytCMD - 3)));
+                    spi_write(*((__IO uint8_t *)(ADDRES_PAGE_PARAMETRS_STATION + parametrs.flashMK.addres + SIZE_USE_FLASH_4K - iterationWaytCMD - 3)));
                 }
                 else if((cmd == FEE_WRITE))//есть 1 исключение когда нужно читать из флешки
                 {
@@ -362,7 +321,7 @@ inline void spi_interupt(uint8_t data)
                     else
                     {
                         dataFl |= data << 8;
-                        writeFlash(((uint32_t)dataFl) | (0xFFFF << 16), ADDRES_PAGE_PARAMETRS_4K + parametrs.flashMK.addres/2*2 + SIZE_USE_FLASH_4K - iterationWaytCMD - 4);
+                        writeFlash(((uint32_t)dataFl) | (0xFFFF << 16), ADDRES_PAGE_PARAMETRS_STATION + parametrs.flashMK.addres/2*2 + SIZE_USE_FLASH_4K - iterationWaytCMD - 4);
                         dataFl = 0;
                     }
                 }
@@ -395,7 +354,7 @@ inline void spi_interupt(uint8_t data)
                 else
                 {
                     dataFl |= data << 8;
-                    writeFlash(((uint32_t)dataFl) | (0xFFFF << 16), parametrs.writeFunction/2*2 + SIZE_USE_FLASH_4K - iterationWaytCMD - 6);
+                    writeFlash(((uint32_t)dataFl) | (0xFFFF << 16), parametrs.writeFunction/2*2 + ADDRES_PAGE_PARAMETRS_STATION - iterationWaytCMD - 6);
                     dataFl = 0;
                 }
             }
@@ -409,11 +368,12 @@ inline void spi_interupt(uint8_t data)
             if(iterationWaytCMD == (sizeCMD - 1))
             {
                 spi_write(parametrs.sizeCS);
-                spi_write(parametrs.sizeCS);
-                spi_write(parametrs.sizeCS);
+                spi_write(parametrs.sizeSPI);
+                spi_write(parametrs.sizeInterfase);
+                spi_write(parametrs.sizeFunction);
             }
         }
-        else
+        else//все команды кроме исключающих
             *(((uint8_t*)(&parametrs) + offset) + sizeCMD - iterationWaytCMD - 1) = data;//записываю в структуру данные
         //..
 

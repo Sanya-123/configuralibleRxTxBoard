@@ -99,7 +99,7 @@ void writeFlashData8(uint32_t pageAddress, uint8_t *data, uint32_t dataLen)
     if(dataLen%4 != 0)//FIXME
     {
         uint32_t data32 = 0xFFFFFFFF;
-        for(int j = 0; j < dataLen%4; j++)
+        for(uint32_t j = 0; j < dataLen%4; j++)
         {
             data32 &= data[i + j] << (j*8);
         }

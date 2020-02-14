@@ -21,6 +21,28 @@ Product {
         "VERSION_FRIM=0x0101",    //version frim 0x0106 -> 01 version board 06 version frimware
     ]
 
+    files: [
+        "*.c",
+        "*.h",
+        "cmsis/*",
+        "cmsis_boot/*",
+        "cmsis_boot/startup/*",
+        "src/*",
+        "src/uprav/*",
+        "Sheduler/*",
+        "*.ld",
+    ]
+
+    cpp.includePaths: [
+        "cmsis/",
+        "cmsis_boot/",
+        "cmsis_boot/startup",
+        "src/",
+        "src/ADF4351/",
+        "src/uprav/",
+        "Sheduler/",
+    ]
+
     cpp.commonCompilerFlags: [
         "-mthumb",              //стандартные инструкции
         "-mcpu=cortex-m3",
@@ -28,46 +50,30 @@ Product {
         "-ffunction-sections",  //на этапе линковки убирать не используемые функции
         "-fno-inline",
 //        "-std=c99",             //версия си
+        "-fshort-enums",
+        "-finput-charset=UTF-8",
+        "-fexec-charset=cp1251",
         "-std=gnu11",
         "-Wall",
+        "-Wpedantic",
+        "-Wno-main",
+        "-Wno-unused-function",
+        "-Wno-old-style-declaration",
+        "-specs=nano.specs",
         "-J",
-       // "-flto"
+//        "-flto",//с ним размер только больше
     ]
     cpp.linkerFlags: [
+        "-Wl,-print-memory-usage",
 //        "-flto",
         "-mthumb",
         "-mcpu=cortex-m3",
-//        "--specs=nosys.specs",
-        "-Wl,--start-group",    //-Wl Pass опция длякомпоновшика
-        "-Wl,--gc-sections",
-//        "-lnosys",
+//        "--specs=nosys.specs",  
+        "-Wl,-start-group",     //-Wl Pass опция длякомпоновшика
+        "-Wl,-gc-sections",
+        "-lnosys",
        // "-lgcc",
        // "-lc"
-    ]
-    cpp.includePaths: [
-        "cmsis/",
-        "cmsis_boot/",
-        "cmsis_boot/startup",
-//        "Freertos/",
-        "src/",
-        "src/ADF4351/",
-        "src/uprav/",
-        "Sheduler/",
-//        "WAKE/",
-    ]
-
-    files: [
-        "*.c",
-        "*.h",
-        "cmsis/*",
-        "cmsis_boot/*",
-        "cmsis_boot/startup/*",
-    //    "Freertos/*.c",
-    //    "Freertos/*.h",
-        "src/*",
-        "src/uprav/*",
-        "Sheduler/*",
-        "*.ld",
     ]
 
     cpp.linkerScripts: [

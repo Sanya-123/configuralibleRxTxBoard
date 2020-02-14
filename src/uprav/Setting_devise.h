@@ -1,6 +1,10 @@
 #ifndef SETTING_DEVICE_H
 #define SETTING_DEVICE_H
 
+//модуль setting уровень взаимодейцствия с пользователем
+// protocol физическая связь им быстрая обработка
+// task обработка команда
+
 #include "Buffer.h"
 #include "uart1.h"
 #include "spi_GPIO.h"
