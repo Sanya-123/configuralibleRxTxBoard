@@ -85,8 +85,10 @@ build_boot
 testUsilok
 
 #востановть позже
-RxTxBoard_UART
-RxTxBoard_function
+#RxTxBoard_UART
+#RxTxBoard_function
+RxTxBoard_UART/bin
+RxTxBoard_function/bin
 
 
 
