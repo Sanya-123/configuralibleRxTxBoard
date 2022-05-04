@@ -18,7 +18,7 @@
 #include "xprintf.h"
 #include "spi.h"
 #include "i2c.h"
-#include "spi_GPIO.h"
+#include "soft_spi.h"
 #include "Setting_devise.h"
 #include "timer_PWM.h"
 

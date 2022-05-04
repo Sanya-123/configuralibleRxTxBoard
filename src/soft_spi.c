@@ -1,8 +1,8 @@
-#include "spi_GPIO.h"
+#include "soft_spi.h"
 #include "Board.h"
 
 
-void init_SPI_GPIO(SoftSpi spi)
+void initSoftSpi(SoftSpi spi)
 {
     if(spi.portPin_CLK)
     {
@@ -102,22 +102,22 @@ static uint32_t sendData(SoftSpi spi, uint32_t data, uint8_t dataBitSize)
     return inData;
 }
 
-uint8_t spiGpioWrite(SoftSpi spi, ChipSelect cs, uint8_t data)
+uint8_t softSpiWrite(SoftSpi spi, ChipSelect cs, uint8_t data)
 {
-    return (uint8_t)spiGpioWriteSomeBit(spi, cs, data, 8);
+    return (uint8_t)softSpiWriteSomeBit(spi, cs, data, 8);
 }
 
-uint16_t spiGpioWriteDouble(SoftSpi spi, ChipSelect cs, uint16_t data)
+uint16_t softSpiWriteDouble(SoftSpi spi, ChipSelect cs, uint16_t data)
 {
-    return (uint16_t)spiGpioWriteSomeBit(spi, cs, data, 16);
+    return (uint16_t)softSpiWriteSomeBit(spi, cs, data, 16);
 }
 
-uint32_t spiGpioWriteWorld(SoftSpi spi, ChipSelect cs, uint32_t data)
+uint32_t softSpiWriteWorld(SoftSpi spi, ChipSelect cs, uint32_t data)
 {
-    return spiGpioWriteSomeBit(spi, cs, data, 32);
+    return softSpiWriteSomeBit(spi, cs, data, 32);
 }
 
-uint32_t spiGpioWriteSomeBit(SoftSpi spi, ChipSelect cs, uint32_t data, uint8_t dataSizeBit)
+uint32_t softSpiWriteSomeBit(SoftSpi spi, ChipSelect cs, uint32_t data, uint8_t dataSizeBit)
 {
     if(cs.port)
         cs.port->BRR |= 1 << cs.numPin;

@@ -35,7 +35,7 @@ int _initSPI(uint8_t pinPortCLK, uint8_t pinPortMOSI, uint8_t pinPortMSIO)
         configBoard.masSpi[configBoard.sizeSPI].portPin_MOSI = getPort((pinPortMOSI >> 4) & 0x0F);
         configBoard.masSpi[configBoard.sizeSPI].portPin_MISO = getPort((pinPortMSIO >> 4) & 0x0F);
 
-        init_SPI_GPIO(configBoard.masSpi[configBoard.sizeSPI]);
+        initSoftSpi(configBoard.masSpi[configBoard.sizeSPI]);
         configBoard.sizeSPI++;
         return 0;
     }
@@ -149,7 +149,7 @@ bool loadConfig()//чтеие из памяти configa
         }
         for(uint8_t i = 0; i < configBoard.sizeSPI; i++)
         {
-            init_SPI_GPIO(configBoard.masSpi[i]);//по сути не надо инициаровать еще раз ножки spi ведь проинициализированны все порты конфигурации
+            initSoftSpi(configBoard.masSpi[i]);//по сути не надо инициаровать еще раз ножки spi ведь проинициализированны все порты конфигурации
         }
         for(uint8_t i = 0; i < configBoard.sizeCS; i++)
         {
@@ -340,7 +340,7 @@ uint32_t boardReadWriteSPI(uint8_t numSpi, uint8_t numCs, uint32_t data, uint8_t
         ChipSelect cs0/* = (ChipSelect){0}*/;
         cs0.numPin = 0;
         cs0.port = 0;
-        return spiGpioWriteSomeBit(configBoard.masSpi[numSpi], (numCs < configBoard.sizeCS ? configBoard.masCs[numCs] : cs0), data, dataSizeBit);
+        return softSpiWriteSomeBit(configBoard.masSpi[numSpi], (numCs < configBoard.sizeCS ? configBoard.masCs[numCs] : cs0), data, dataSizeBit);
     }
 
     return 0;
@@ -352,7 +352,7 @@ uint32_t boardReadWriteInterface(uint8_t numInterface, uint32_t data, uint8_t da
     {
         if(configBoard.masInterface[numInterface].perepheria1 == SPI_int)
         {
-            return spiGpioWriteSomeBit(*(configBoard.masInterface[numInterface].spi), *(configBoard.masInterface[numInterface].cs), data, dataSizeBit);
+            return softSpiWriteSomeBit(*(configBoard.masInterface[numInterface].spi), *(configBoard.masInterface[numInterface].cs), data, dataSizeBit);
         }
     }
     return 0;

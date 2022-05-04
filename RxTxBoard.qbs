@@ -24,9 +24,9 @@ Product {
     files: [
         "*.c",
         "*.h",
-        "cmsis/*",
-        "cmsis_boot/*",
-        "cmsis_boot/startup/*",
+//        "cmsis/*",
+//        "cmsis_boot/*",
+//        "cmsis_boot/startup/*",
         "src/*",
         "src/uprav/*",
         "Sheduler/*",
@@ -34,14 +34,28 @@ Product {
     ]
 
     cpp.includePaths: [
-        "cmsis/",
-        "cmsis_boot/",
-        "cmsis_boot/startup",
         "src/",
+//        "cmsis/",
+//        "cmsis_boot/",
+//        "cmsis_boot/startup",
         "src/ADF4351/",
         "src/uprav/",
         "Sheduler/",
     ]
+
+    RxTxBoard_halSource {}
+//    RxTxBoard_halInclude {}
+    Properties {
+        condition: true
+        cpp.includePaths:  outer.concat([
+            "cmsis/",
+            "cmsis_boot/",
+            "cmsis_boot/startup",
+        ])
+
+    }
+
+
 
     cpp.commonCompilerFlags: [
         "-mthumb",              //стандартные инструкции

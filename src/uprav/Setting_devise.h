@@ -7,7 +7,7 @@
 
 #include "Buffer.h"
 #include "uart1.h"
-#include "spi_GPIO.h"
+#include "soft_spi.h"
 #include "spi.h"
 #include "dac.h"
 #include "memory_conf.h"

@@ -7,7 +7,7 @@
 #include "stm32f1xx.h"
 
 #include "CMD_const.h"
-#include "spi_GPIO.h"
+#include "soft_spi.h"
 
 #define TIME_OUT_IWDG                       2000        //время watchdog
 #define SIZE_PORT_GPIO                      4

@@ -25,17 +25,17 @@ typedef struct __attribute__((packed)){
 
 #define ADD_CS_PIN(port,pin)        _PIN_CONFIGURATION(port, pin, MODE_OUTPUT_PUSH_PULL, SPEED_50MHZ, 1)//инициализация ножки Chip select
 
-void init_SPI_GPIO(SoftSpi spi);
+void initSoftSpi(SoftSpi spi);
 
 void initCS(ChipSelect cs);
 
-uint8_t spiGpioWrite(SoftSpi spi, ChipSelect cs, uint8_t data);
+uint8_t softSpiWrite(SoftSpi spi, ChipSelect cs, uint8_t data);
 
-uint16_t spiGpioWriteDouble(SoftSpi spi, ChipSelect cs, uint16_t data);
+uint16_t softSpiWriteDouble(SoftSpi spi, ChipSelect cs, uint16_t data);
 
-uint32_t spiGpioWriteWorld(SoftSpi spi, ChipSelect cs, uint32_t data);
+uint32_t softSpiWriteWorld(SoftSpi spi, ChipSelect cs, uint32_t data);
 
-uint32_t spiGpioWriteSomeBit(SoftSpi spi, ChipSelect cs, uint32_t data, uint8_t dataSizeBit);
+uint32_t softSpiWriteSomeBit(SoftSpi spi, ChipSelect cs, uint32_t data, uint8_t dataSizeBit);
 
 
 #endif // SPI_GPIO_H
