@@ -19,7 +19,6 @@ int function(FunctionBoard *funct, char *argyment, uint32_t sizeArgument)
     (void)sizeArgument;
     (void)funct;
     funct->readWriteInerface(1, 0x00d80005, 32);//off 0x00180005
-//    PIN_TOGGLE(LED_TMP);
 
     return 0;
 }
